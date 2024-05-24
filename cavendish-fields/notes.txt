@@ -1,0 +1,10 @@
+
+# Subroutines
+470 creation - creates maps and troops, displays both
+720 displays decorative border
+800 random terrain generator
+860 troop deployment (and printing)
+
+
+# Errors
+Line 2270 - replaces killed unit with a space - should replace with the correct map symbol

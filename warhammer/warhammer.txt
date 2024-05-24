@@ -1,0 +1,144 @@
+5 DEF FN d()= INT ( RND *6)+1
+10 GO SUB 9000: PRINT INVERSE 1; AT 1,6;"WELCOME TO WARHAMMER"; AT 3,11;"MAIN MENU"; INVERSE 0; AT 5,11;"1-ARCHERY"; AT 7,11;"2-COMBAT"; AT 9,11;"3-POISON"; AT 11,11;"4-FLAME"; AT 13,11;"5-QUIT"
+20 LET A$= INKEY$ : IF A$ < "1" OR A$ > "5" THEN GO TO 20
+30 IF A$="5" THEN GO TO 9999
+40 GO SUB 1000+( VAL A$-1)*1000: RUN
+800 GO SUB 9040
+810 IF DEAD <  TN/4 THEN RETURN
+1000 REM Archery Subroutine
+1010 GO SUB 9000: PRINT INVERSE 1; AT 1,11;"WARHAMMER"
+1020 PRINT AT 3,2;"▟█▙ ██▙ ▟██ ██ ███ ██▙ ██"
+1030 PRINT AT 4,2;"██ █ █ █ ██ █▄  ██ ██"
+1040 PRINT AT 5,2;"███ ██▛ █ ███ █▀  ██▛ ▜██"
+1050 PRINT AT 6,2;"██ █ █ ███ █   ██   █"
+1060 PRINT AT 7,2;"████ ▜██ ██ ███ ██ ██▛"
+1070 PRINT AT 12,0;"PRESS ~R~ TO RETURN TO MAIN MENU   ANY OTHER KEY FOR ARCHERY"
+1080 LET A$= INKEY$ : IF A$="" THEN GO TO 1080
+1090 IF A$="r" OR A$="R" THEN RETURN
+1100 CLS : GO SUB 1200
+1110 GO TO 1000
+1200 REM Load data for Archery
+1210 RESTORE 1950
+1215 DIM W$(10,14): DIM S(10): DIM L(10): DIM T(10)
+1220 FOR F=1 TO 10: READ W$(F): READ S(F): READ L(F): READ T(F): NEXT F
+1230 REM get archers details
+1235 CLS : INPUT INK 4;"Archer's Bow Skill ("; INVERSE 1;"Bs"; INVERSE 0;") ";BS
+1240 IF bs < 0 OR bs > 10 THEN LET e$="Bs out of range": GO SUB 9070: GO TO 1235
+1245 IF bs=0 THEN LET e$= "Firer cannot use missile fire": GO SUB 9070: RETURN
+1250 CLS : INPUT INK 4;"No. of firers ";an
+1255 IF AN < 1 THEN LET e$="Must be 1 or more firers": GO SUB 9070: GO TO 1250
+1260 CLS : PRINT "Select type of missile weapon   being employed:-"''"0-SHORT BOW"'"1-NORMAL BOW"'"2-LONG BOW"'"3-CROSSBOW/ELF BOW"'"4-REPEATING CROSSBOW"'"5-SLING"'"6-JAVELIN"'"7-DART/AXE/SPEAR/KNIFE"'"8-BLOW PIPE"'"9-IMPROVISED MISSILES"
+1265 LET a$= INKEY$ : IF a$="" THEN GO TO 1265
+1270 IF a$ < "0" OR a$ > "9" THEN GO SUB 9040: GO TO 1270
+1275 LET wt= VAL a$+1
+1280 IF wt <> 4 THEN GO TO 1310
+1285 CLS : PRINT "Is the weapon an ELF BOW?": GO SUB 9100: IF yes=0 THEN GO TO 1305
+1290 CLS : PRINT "Are firers Elves?": GO SUB 9100: IF yes=1 THEN GO TO 1310
+1300 CLS : LET wt=1 : PRINT FLASH 1;"Weapon now counts as short bow": GO SUB 9040: CLS : GO TO 1310
+1305 CLS : PRINT "Did firers move this turn?": GO SUB 9100: IF yes=1 THEN LET e$="Firers may NOT fire this turn": GO SUB 9070: RETURN
+1310 CLS : INPUT "Range (to nearest inch) ";r
+1315 IF r < 1 THEN LET e$="Range cannot be less than 1": GO SUB 9070: GO TO 1310
+1320 IF r >  l(wt) THEN LET e$="Shot out of range": GO SUB 9070: RETURN
+1330 CLS : PRINT "Is firer mounted?": GO SUB 9100: IF yes=0 THEN GO TO 1350
+1335 IF r >  s(wt) THEN LET e$="Shot out of range": GO SUB 9080: RETURN
+1340 IF wt=3 THEN LET e$="Long bows cannot be used mounted": GO SUB 9070: RETURN
+1350 CLS : INPUT "Target's Toughness? ";tt
+1355 IF tt < 1 OR tt > 10 THEN LET e$="Invalid toughness value": GO SUB 9070: GO TO 1350
+1360 CLS : INPUT "Target's wounds? ";tw
+1365 IF tw < 1 THEN LET e$="Wounds must be at least 1": GO SUB 9070: GO TO 1360
+1370 CLS : INPUT "No. of figures in target ";tn
+1375 IF tn < 1 THEN LET e$="must be at least 1 figure": GO SUB 9070: GO TO 1370
+1380 IF tn >  1 THEN GO TO 1420
+1381 REM Dealing with individual target
+1385 CLS : PRINT "Is target an individual"'"character?": GO SUB 9100: IF yes=0 THEN GO TO 1420
+1390 PRINT ''"Is character in base to base"'"contact with a unit of more thanfive troops?": GO SUB 9100: IF yes=1 THEN LET e$="Target cannot be fired upon": GO SUB 9070: RETURN
+1395 PRINT ''"Is character within 5~ of a unitof at least 5 troops OR in base to base contact with a unit of  less than five troops": GO SUB 9100: IF yes=0 THEN GO TO 1420
+1400 IF an > 1 THEN GO TO 1420
+1405 PRINT ''"Is archer an individual"'"character?": GO SUB 1010: IF yes=1 THEN GO TO 1420
+1410 PRINT ''"Target may only be engaged at"'"short range": GO SUB 9040: IF r >  s(wt) THEN LET e$="Out of range": GO SUB 9070: RETURN
+1420 LET mod=0
+1430 CLS : PRINT TAB 11; INVERSE 1;"To Hit Modifiers"; INVERSE 0
+1435 PRINT ''"Is target LARGE?"'"(Over 10' tall OR 10' long)": GO SUB 9100: IF yes=1 THEN LET mod=mod+1: GO TO 1445
+1440 PRINT '"Is target SMALL?"'"(Under 1' tall AND 1' long)": GO SUB 9100: IF yes=1 THEN LET mod=mod-1
+1445 PRINT '"Is firer firing from a moving"'"mount?"'"e.g horse,wolf,elephant,chariot"'"or a wagon": GO SUB 9100: IF yes=1 THEN LET mod=mod-1
+1450 IF r >  s(wt) THEN LET mod=mod-1
+1455 IF an=1 THEN PRINT '"Is firer wounded?": GO SUB 9100: LET mod=mod-yes
+1460 PRINT '"Is target behind soft cover?"'"e.g vegetation,woods,trees": GO SUB 9100: LET mod=mod-yes: IF yes=1 THEN GO TO 1470
+1465 PRINT '"Is target behind hard cover?"'"e.g stone or brick work,walls,"'"battlements": GO SUB 9100: LET mod=mod-yes*2
+1470 IF wt=10 THEN LET mod=mod-1
+1475 IF wt=5 THEN LET an=an*2
+1500 CLS : PRINT "PLEASE WAIT..."'"      Working out hits"
+1510 LET tohit=(7-bs)+mod
+1520 LET hits = 0
+1530 FOR f=1 TO an
+1540 IF FN d() >= tohit THEN LET hits=hits+1
+1550 NEXT f
+1555 IF hits=0 THEN GO TO 1610
+1560 CLS : INPUT "Target's AST (7 for no armour)";ast
+1565 IF ast < 1 OR ast > 7 THEN LET e$="Invalid ast value": GO SUB 9070: GO TO 1560
+1568 LET str=t(wt)
+1570 IF str > 3 THEN LET ast=ast+str-3
+1575 LET saves=0
+1580 IF ast > 6 THEN GO TO 1600
+1581 CLS : PRINT "PLEASE WAIT..."'"      Working out casualties"
+1585 FOR f=1 TO hits
+1590 IF FN d() >= ast THEN LET saves=saves+1
+1595 NEXT f
+1600 LET hits=hits-saves
+1605 IF hits < 0 THEN LET hits=0
+1610 LET nw=0: LET tou=tt
+1612 IF hits=0 THEN GO TO 1625
+1615 GO SUB 1860: REM precalc for wound calc
+1618 IF dif < -3 THEN GO TO 1625
+1620 FOR f=1 TO hits: GO SUB 1920: NEXT f
+1625 LET dead= INT (nw/tw)
+1630 LET sw=nw-(dead*tw)
+1635 IF dead >= tn THEN LET e$="TARGET DESTROYED": GO SUB 9070: RETURN
+1700 CLS : PRINT TAB 11; INVERSE 1;"Outcome"
+1710 PRINT ''"Number of hits:": FOR f=0 TO hits: PRINT AT 3,17;f: NEXT f
+1720 PRINT ''"Number of wounds:": FOR f=0 TO nw: PRINT AT 6,17;f: NEXT f
+1730 PRINT ''"Number of dead:": FOR f=0 TO dead: PRINT AT 9,17;f: NEXT f
+1740 PRINT ''"Number of extra wounds:";sw
+1750 GO SUB 9160: PAUSE 0
+1760 IF dead <  tn/4 THEN RETURN
+1790 REM Rout test
+1800 CLS : INPUT "Enter target's Ld ";ld
+1810 LET d= FN d()+ FN d(): IF d <= ld THEN CLS : PRINT "Target does not rout": GO SUB 9040: RETURN
+1820 LET e$="TARGET ROUTS": GO SUB 9070: RETURN
+1870 LET dif=str-tou
+1880 IF dif < -3 THEN RETURN
+1890 IF dif=-3 THEN LET dif=-2
+1900 IF dif > 2 THEN LET dif=3
+1910 LET dif=dif+2
+1911 LET towound=5-dif
+1915 RETURN
+1930 IF FN d() > towound THEN LET nw=nw+1
+1940 RETURN
+1949 REM Archery Data
+1950 DATA "SHORT BOW",8,16,3
+1955 DATA "NORMAL BOW",12,24,3
+1960 DATA "LONG BOW",16,32,4
+1965 DATA "XBOW/ELF BOW",16,32,4
+1970 DATA "REPEATING XBOW",16,16,3
+1975 DATA "SLING",12,18,3
+1980 DATA "JAVELIN",4,8,3
+1985 DATA "DART/SPEAR/AXE",2,4,3
+1990 DATA "BLOWPIPE",6,12,1
+1995 DATA "IMPROVISED",1,3,1
+8999 REM Subroutines
+9000 REM clear screen and set colours
+9010 BORDER 0: INK 4: PAPER 0: BRIGHT 1: CLS : RETURN
+9020 REM Display illegal value
+9030 LET e$="Illegal Value": GO SUB 9070: RETURN
+9040 REM Error, beep and wait for keypress
+9050 BEEP 1,1: PAUSE 0: RETURN
+9060 REM Print Error, wait and return
+9070 CLS : PRINT FLASH 1;e$
+9080 BEEP 1,1: PAUSE 0: RETURN
+9100 REM Input Y or N
+9110 LET a$= INKEY$ : IF a$="" THEN GO TO 9110
+9120 IF a$ <> "y" AND a$ <> "Y" AND a$ <> "n" AND a$ <> "N" THEN GO TO 9110
+9130 IF a$="n" OR a$="N" THEN LET yes=0: GO TO 9150
+9140 LET yes=1
+9150 REM confirm beep
+9160 BEEP .30,1: RETURN

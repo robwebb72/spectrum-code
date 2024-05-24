@@ -1,0 +1,364 @@
+10 CLEAR
+20 DEF FN r(x)= INT ( RND *x)+1
+30 GO SUB 190: REM initialisation
+40 GO SUB 470: REM create map and troops
+50 GO SUB 860
+60 REM dummy for loop
+70 FOR i=1 TO 8
+80 IF t(i,1) < 4 THEN GO SUB 1380
+85 IF y > 2 THEN GO SUB 1900
+90 IF t(i,1) < 5 THEN PAPER 4: INK 1: PRINT AT t(i,8),t(i,9);u$(i)
+100 NEXT i
+110 FOR e=9 TO 16
+120 IF t(e,1) < 4 THEN GO SUB 2140
+130 NEXT e
+140 GO SUB 1020
+150 GO SUB 2290
+160 IF vc <> 1 AND de <> 1 THEN GO TO 60
+170 GO SUB 2380
+180 GO TO 9999
+190 REM initialisation
+200 LET vc=0: LET de=0
+210 FOR k=1 TO 9
+220 READ a$
+230 FOR i=0 TO 7
+240 READ a
+260 POKE USR a$+i,a
+270 NEXT i
+290 NEXT k
+310 REM
+320 PAPER 7
+330 INK 0
+340 CLS
+350 DIM m(16,30)
+355 DIM t(16,9)
+360 DIM t$(8,12): DIM o$(5,12): DIM w$(5,6): DIM m$(5,10): DIM a$(4,10): DIM r$(5,8): DIM c(8)
+370 LET i$="NWSE"
+380 FOR i=1 TO 5: READ o$(i): NEXT i
+381 FOR i=1 TO 5: READ w$(i): NEXT i
+382 FOR i=1 TO 5: READ m$(i): NEXT i
+390 FOR i=1 TO 8: READ t$(i): NEXT i
+400 FOR i=1 TO 4: READ a$(i): NEXT i
+405 FOR i=1 TO 5: READ r$(i): NEXT i
+410 LET u$= CHR$ 148+ CHR$ 149+ CHR$ 150+ CHR$ 150+ CHR$ 151+ CHR$ 151+ CHR$ 152+ CHR$ 152: LET u$=u$+u$
+416 LET sp=1
+420 LET x$="NnYy"
+430 RETURN
+470 REM CREATE
+475 REM CREATE MAP
+476 PAPER 4
+480 FOR i=1 TO 16: GO SUB 800: LET m(i,1)=r: NEXT i
+490 FOR i=1 TO 16
+500 FOR j=2 TO 30
+510 LET s= FN r(10)
+520 IF s < 8 THEN GO SUB 800
+530 IF s >= 8 THEN LET r=m(i,j-1): IF r=4 THEN LET r=3
+540 IF m(i,j) < 4 THEN LET m(i,j)=r
+550 IF r=3 AND j < 30 THEN LET m(i,j+1)=4
+560 NEXT j
+570 NEXT i
+571 FOR j=1 TO 30
+572 FOR i=1 TO 16
+573 LET terx=j: LET tery=i: GO SUB 2600
+575 PRINT AT i,j;z$
+577 NEXT i
+578 NEXT j
+579 PAPER 7
+580 GO SUB 720
+589 REM CREATE TROOPS
+590 FOR i=1 TO 8
+600 FOR j=1 TO 2: LET t(i,j)=2: LET t(i+8,j)=2: NEXT j
+610 FOR j=3 TO 4
+615 READ t(i,j)
+617 LET t(i+8,j)=t(i,j)
+619 NEXT j
+620 READ mr
+630 FOR j=0 TO 8 STEP 8
+640 LET t(i+j,5)=mr + FN r(2)
+650 LET t(i+j,6)= ( FN r(100)*10)+10
+660 LET t(i+j,7)= t(i+j,6)
+670 NEXT j
+680 LET t(i,8)=15
+690 LET t(i+8,8)=1
+700 NEXT i
+710 RETURN
+720 REM DECORATIVE BORDER
+721 PAPER 7: INK 0: BRIGHT 1
+730 FOR i=0 TO 16
+740 PRINT AT i,0; CHR$ 150; AT i,31; CHR$ 150
+750 NEXT i
+760 FOR i=0 TO 31
+770 PRINT AT 0,i; CHR$ 150; AT 16,i; CHR$ 150
+780 NEXT i
+781 PAPER 7: INK 0: BRIGHT 0
+790 RETURN
+800 REM CHOOSE TERRAIN
+810 LET r = FN r(30)
+820 IF r > 5 THEN LET r=0
+830 IF r > 4 THEN LET r=3: RETURN
+840 IF r > 1 THEN LET r=2
+850 RETURN
+860 REM DEPLOY TROOPS
+870 INK 2
+880 FOR m=1 TO 2
+890 LET s=1: LET r=1
+900 FOR k=1 TO 8
+910 REM dummy for Repeat loop
+920 LET s= FN r(8*m)
+930 IF t(s,9) <> 0 THEN GO TO 910
+940 LET r= FN r(4)+r
+950 LET r=r- INT (r/30)
+960 LET t(s,9)=r
+970 INK m: PAPER 4
+980 PRINT AT t(s,8),t(s,9);u$(s)
+990 NEXT k
+1000 NEXT m
+1005 PAPER 7
+1010 RETURN
+1020 REM effect of orders
+1030 FOR i=1 TO 16
+1032 IF t(i,1) > 3 THEN GO TO 1140
+1035 INK 0: GO SUB 2540: PRINT AT 17,0;"Unit ";i;" decides to act"
+1040 LET cl=1: IF i > 8 THEN LET cl=2: INK cl
+1050 IF t(i,1)=3 THEN LET b=i: GO SUB 1160
+1055 IF t(i,1)=2 THEN GO TO 1140
+1060 IF t(i,1)=1 THEN LET sh=i: GO SUB 1710: GO TO 1140
+1070 FOR f=-1 TO 1
+1080 FOR g=-1 TO 1
+1090 FOR e=1 TO 16
+1100 IF (t(i,8)+f=t(e,8)) AND (t(i,9)+g=t(e,9)) AND t(e,1) <> 5 THEN LET us=i: LET th=e: GO SUB 1510
+1110 NEXT e
+1120 NEXT g
+1130 NEXT f
+1140 NEXT i
+1150 RETURN
+1160 REM move unit
+1170 LET ox=t(b,8): LET oy=t(b,9)
+1180 LET tery=ox: LET terx=oy: GO SUB 2600: REM get terrain symbol
+1190 LET d=5-t(b,4)
+1200 IF b=1 OR b=2 OR b=9 OR b=10 THEN LET d=d+2
+1210 LET v=t(b,2)
+1211 IF v=1 THEN LET up=-1: LET al=0
+1212 IF v=2 THEN LET up=0: LET al=-1
+1213 IF v=3 THEN LET up=1: LET al=0
+1214 IF v=4 THEN LET up=0: LET al=1
+1230 REM dummy for repeat
+1240 LET nx=t(b,9)+al: LET ny=t(b,8)+up
+1250 IF ny < 1 THEN LET ny=1
+1260 IF ny > 15 THEN LET ny=15
+1270 IF nx < 1 THEN LET nx=1
+1280 IF nx > 30 THEN LET nx=30
+1290 IF m(ny,nx) > 0 THEN LET d=d-1
+1300 FOR k=1 TO 16
+1310 IF k <> b AND t(k,9)=nx AND t(k,8)=ny THEN LET d=0
+1320 NEXT k
+1330 IF d > 0 THEN LET t(b,9)=nx: LET t(b,8)=ny: LET d=d-1
+1340 IF d > 0 THEN GO TO 1230
+1341 PAPER 4
+1350 INK 0: PRINT AT ox,oy;z$
+1360 INK cl: PRINT AT t(b,8),t(b,9);u$(i)
+1370 RETURN
+1380 REM Select unit for orders
+1390 GO SUB 2540
+1400 INK 0: PAPER 4
+1410 PRINT FLASH 1; AT t(i,8),t(i,9);u$(i)
+1415 PAPER 7
+1416 GO SUB 2540: REM clear text screen
+1420 PRINT AT 17,0;"Unit ";i;" ";t$(i);"      "
+1425 PRINT AT 18,4;t(i,7);"(";t(i,6);") ";w$(t(i,3));"  ";a$(t(i,4))
+1430 PRINT AT 19,4;r$(m(t(i,8),t(i,9))+1);"   ";m$(t(i,5))
+1440 PRINT AT 20,0;"Current orders are: ";o$(t(i,1));" "
+1445 IF t(i,1)=3 THEN PRINT AT 20,28;i$(t(i,2))
+1450 REM Dummy for repeat loop
+1460 PRINT AT 21,0;"Change orders (y/n)?"
+1465 LET y=0
+1466 GO SUB 2560
+1470 FOR k=1 TO 4
+1475 IF x$(k)=k$ THEN LET y=k
+1480 NEXT k
+1490 IF y=0 THEN GO TO 1450
+1500 RETURN
+1510 REM combat
+1520 IF (us < 9 AND th < 9) OR (us > 8 AND th > 8) THEN RETURN
+1530 IF t(us,1)=5 OR t(th,1)=5 THEN RETURN
+1540 GO SUB 2540
+1545 PAPER 7
+1550 PRINT AT 18,0;"Combat!!!"
+1560 LET att= INT ((t(us,7)-t(th,7))/50)
+1570 LET att=att+t(us,3)-t(th,4)+t(us,5)+ FN r(5)
+1580 IF ABS (t(us,2)-t(th,2)) <> 2 THEN LET att=att+2
+1590 IF us=1 OR us=2 OR us=9 OR us=10 THEN LET att=att+1
+1600 LET def= INT ((t(th,7)-t(us,7))/60)
+1610 LET def=def+t(th,3)-t(us,4)+t(th,5)+ FN r(3)+ 2
+1611 LET def=def+m(t(th,8),t(th,9))
+1615 LET wn=th: LET lo=us
+1620 IF att > def THEN LET wn=us: LET lo=th
+1630 LET wc= INT (t(wn,7)/10): IF wc < 1 THEN LET wc=1
+1640 LET t(wn,7)=t(wn,7)-wc
+1650 LET lc= INT (t(lo,7)/5): IF lo < 1 THEN LET lo=1
+1660 LET t(lo,7)=t(lo,7)-lc
+1665 IF wn > 8 THEN LET c(wn-8)=8
+1666 IF lo > 8 THEN LET c(lo-8)=t(wn,2)
+1670 PRINT AT 19,0;wn;" loses ";wc
+1680 PRINT AT 19,0;lo;" loses ";lc
+1690 LET un=lo: GO SUB 2200
+1700 RETURN
+1710 REM missile routine
+1720 GO SUB 2540
+1725 PAPER 7
+1730 PRINT AT 18,0;"Unit ";sh;" fires"
+1740 LET fx=5: LET fy=5: LET gp=-1
+1750 LET st=9: IF sh > 8 THEN LET st=1
+1760 LET ra=st: LET rb=sh: LET rc=fx: LET rd=fy: GO SUB 3000
+1800 IF gp=-1 THEN PRINT AT 19,0;"Nothing in range": GO SUB 2410: RETURN
+1810 LET c=8-t(gp,4)- ABS (fx-fy)
+1820 IF gp=1 OR gp=2 OR gp=9 OR gp=10 THEN LET c=c+1
+1830 IF m(t(gp,8),t(gp,9))=2 THEN LET c=c-2
+1840 IF t(gp,1) <> 2 THEN LET c=c+1
+1850 LET c=(c+( INT (t(sh,7)/40))+ FN r(3))*10
+1860 LET t(gp,7)=t(gp,7)-c
+1870 PRINT "That causes ";c;" casualties on unit ";gp
+1875 GO SUB 2410
+1880 LET un=gp: GO SUB 2200
+1890 RETURN
+1900 REM select action
+1910 GO SUB 2540
+1915 PAPER 7
+1920 PRINT AT 18,0;"Options are:"
+1930 FOR j=1 TO 4
+1940 PRINT AT 17+j,8;o$(j,1);" - ";o$(j)
+1950 NEXT j
+1960 REM dummy for loop
+1962 LET a=0
+1965 LET f$="FfHhMmSs"
+1970 GO SUB 2560
+1975 FOR k=1 TO 8
+1980 IF f$(k)=k$ THEN LET a= INT ((k+1)/2)
+1985 NEXT k
+1990 IF a <= 0 THEN GO TO 1960
+2000 IF i <> 5 AND i <> 6 AND a=1 THEN GO SUB 2540: PRINT AT 18,8;"No bows": GO SUB 2410: RETURN
+2010 IF a=4 THEN GO SUB 2440: RETURN
+2020 LET t(i,1)=a
+2030 IF a=3 THEN GO SUB 2050
+2040 RETURN
+2050 REM decide movement direction
+2055 GO SUB 2540
+2060 PRINT AT 17,0;"Which way(nsew)?"
+2070 REM dummy for for loop
+2075 LET g=0
+2080 GO SUB 2560
+2090 IF CODE (k$) > 90 THEN LET k$= CHR$ ( CODE (k$)-32)
+2095 FOR k=1 TO 4
+2100 IF i$(k)=k$ THEN LET g=k
+2105 NEXT k
+2110 IF g=0 THEN GO TO 2070
+2120 LET t(i,2)=g
+2130 RETURN
+2140 REM enemy selects action
+2142 REM dummy for repeat loop
+2143 LET r= FN r(10)
+2144 IF r=1 OR t(sp,1) > 3 THEN LET sp= FN r(8)
+2145 IF r=1 AND t(sp,1) > 3 THEN GO TO 2142
+2150 IF c(e-8)=8 THEN RETURN
+2155 IF c(e-8) <> 0 THEN LET t(e,1)=3: LET t(e,2)=c(e-8): LET c(e-8)=0: RETURN
+2170 IF t(e,3)=2 THEN LET ra=1: LET rb=e: LET rc=5: LET rd=5: GO SUB 3000: IF gp <> -1 THEN LET t(e,1)=1: RETURN
+2180 LET t(e,1)=3
+2181 LET hp=5: LET vp=5: LET mv=0
+2182 FOR v=1 TO 8
+2183 LET zp=0: GO SUB 3100
+2184 IF zp <> 0 THEN GO SUB 3200
+2185 NEXT v
+2187 IF hp <> 5 AND vp <> 5 THEN RETURN
+2188 IF mv <> 0 THEN LET t(e,2)=mv: RETURN
+2189 LET hp=t(e,8)-t(sp,8): LET vp=t(e,9)-t(sp,9): GO SUB 3200
+2190 RETURN
+2200 REM morale test
+2210 IF t(un,6)-t(un,7) < ((t(un,6)/100)*((t(un,5)+2))) THEN RETURN
+2220 GO SUB 2540
+2225 PAPER 7
+2230 PRINT AT 18,0;"Losses are to great"; AT 19,0;"Unit ";un;" disintegrates"
+2250 GO SUB 2410
+2260 LET t(un,1)=5
+2265 PAPER 4
+2270 PRINT AT t(un,8),t(un,9);" "
+2280 RETURN
+2290 REM test for victory
+2300 LET gd=0: LET bd=0
+2310 FOR m=1 TO 8
+2320 IF t(m,1) <> 5 THEN LET gd=gd+1
+2330 IF t(m+8,1) <> 5 THEN LET bd=bd+1
+2340 NEXT m
+2350 IF gd > (bd*2) OR (bd < 2 AND gd > 2) THEN LET vc=1
+2360 IF bd > (gd*2) OR (gd < 2 AND bd > 2) THEN LET de=1
+2370 RETURN
+2380 REM end mesage
+2390 IF vc=1 THEN PRINT "VICTORY!!!!"
+2395 IF de=1 THEN PRINT "Defeat....."
+2400 RETURN
+2410 REM delay
+2420 PAPER 7: PRINT AT 21,7;"{Press any key}"
+2425 GO SUB 2560
+2430 RETURN
+2440 REM unit status
+2450 GO SUB 2540
+2455 PAPER 7
+2460 PRINT AT 17,0;"UNIT ";i;"    Type: ";t$(i)
+2470 PRINT AT 18,0;"Wpn: ";w$(t(i,3))
+2480 PRINT AT 18,14;"Arm: ";a$(t(i,4))
+2490 PRINT AT 19,0;"Str: ";t(i,7)
+2500 PRINT AT 19,14;"Att: ";m$(t(i,5))
+2510 PRINT AT 20,0;"Terrain: ";r$(m(t(i,8),t(i,9))+1)
+2520 GO SUB 2410
+2530 RETURN
+2540 REM clear text screen
+2550 PAPER 7: FOR k=17 TO 21: PRINT AT k,0;"                                ": NEXT k
+2555 RETURN
+2560 REM read key and wait for key release
+2561 LET k$= INKEY$ : IF k$="" THEN GO TO 2561
+2562 LET h$= INKEY$ : IF h$ <> "" THEN GO TO 2562
+2565 RETURN
+2600 REM get terrain char
+2610 LET z$=" "
+2620 IF m(tery,terx)=0 THEN RETURN
+2630 LET z$= CHR$ (143+m(tery,terx))
+2640 RETURN
+3000 REM target in range?
+3010 LET gp=-1
+3020 FOR m=ra TO (ra+7)
+3030 LET xx= ABS (t(m,8)-t(rb,8))
+3035 LET yy= ABS (t(m,9)-t(rb,9))
+3040 IF xx < rc AND yy < rd AND t(m,1) < 4 THEN LET rc=xx: LET rd=yy: LET gp=m
+3050 NEXT m
+3060 RETURN
+3100 REM is strong or weak target nearby?
+3110 IF t(v,1) > 3 THEN RETURN
+3120 LET xx= ABS (t(v,8)-t(e,8))
+3125 LET yy= ABS (t(v,9)-t(e,9))
+3130 IF t(v,7) >= t(e,7) AND xx < 5 AND yy < 5 THEN LET mv=t(v,2)
+3140 IF xx < hp AND yy < vp THEN LET hp=xx: LET vp=yy: LET zp=1
+3150 RETURN
+3200 REM move towards predetermined square
+3210 IF hp >= 0 THEN LET lp=1
+3220 IF hp < 0 THEN LET lp=3: LET hp= ABS (hp)
+3230 IF vp >= 0 AND ABS (vp) > hp THEN LET lp=2
+3240 IF vp < 0 AND ABS (vp) > hp THEN LET lp=4: LET vp= ABS (vp)
+3250 LET t(e,2)=lp
+3260 RETURN
+5000 REM game data
+5010 DATA "a",16,16,60,126,255,189,231,231
+5020 DATA "b",16,56,84,16,56,84,146,16
+5030 DATA "c",8,20,34,65,6,8,16,224
+5040 DATA "d",0,48,72,132,2,0,0,0
+5050 DATA "e",128,240,255,252,143,128,128,128
+5060 DATA "f",64,240,72,68,68,68,78,68
+5070 DATA "g",255,231,231,129,129,231,102,60
+5080 DATA "h",249,70,38,25,9,5,3,1
+5090 DATA "i",1,2,4,8,16,160,64,160
+5100 REM game data
+5110 DATA "fire","halt","move","status","rout"
+5120 DATA "none","bow","sword","axe","lance"
+5130 DATA "cowardly","unwilling","willing","brave","valliant"
+5140 DATA "knights","sergeants","men-at-arms","men-at-arms","archers","archers","peasants","peasants"
+5150 DATA "none","jerkin","chainmail","plate"
+5160 DATA "plains","village","woods","hills","hills"
+5170 DATA 5,4,3,5,3,3,4,3,2,3,3,1,2,2,1,2,3,2,3,2,0,3,1,0

@@ -1,0 +1,12 @@
+10 DEF FN m(x,y)=x- INT (x/y)*y
+50 FOR i = 1 TO 100
+60 GO SUB 100
+70 NEXT i
+80 GO TO 9999
+100 LET s$=""
+110 IF FN m(i,3)=0 THEN LET s$=s$ + "fizz"
+120 IF FN m(i,5)=0 THEN LET s$=s$+ "buzz"
+130 IF FN m(i,7)=0 THEN LET s$=s$+ "pop"
+140 IF LEN s$= 0 THEN PRINT i : RETURN
+150 PRINT s$
+160 RETURN
